@@ -1,0 +1,188 @@
+/*Benjamin Sims 
+05 January 2014
+This File: .java
+Required Files: none
+Description: Flash card game used to practice words 
+Usage: week tycho; 
+Input: Keyboard, Mouse
+Output: GUI
+*/
+
+package lernenspielen;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.*;
+import java.util.ArrayList;
+
+public class LernenSpielen extends JFrame {
+    
+    // Array Lists used to gather words from both languages
+    private final ArrayList<String> list1 = new ArrayList();
+    private final ArrayList<String> list2 = new ArrayList();
+    
+    private final JTextField field1 = new JTextField(15);
+    private final JTextField field2 = new JTextField(15);
+    
+    private final JPanel mainBody = new JPanel();
+        
+    private final JButton submit = new JButton("OK");
+    private final JButton done = new JButton("Done");
+    private final JButton check = new JButton("Check");
+    
+    private final JLabel message1 = new JLabel();
+    private final JLabel message2 = new JLabel();
+    
+    //Number used later as random number
+    private int number;
+    
+    //Numbers used for keeping score
+    private int correct = 0;
+    private int incorrect = 0;
+    
+    public static void main(String[] args) {
+        LernenSpielen frame = new LernenSpielen();
+        frame.setSize(400, 200);
+        frame.setTitle("Practice");
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        
+    }
+    
+    public LernenSpielen(){
+        questions();
+    }
+    
+    private void questions(){
+        
+        //Instructions
+        message1.setText("Please enter a word and its translation.");
+        mainBody.add(message1, BorderLayout.NORTH);
+        
+        
+        //Set JFields' texts and add them
+        field1.setText("Enter a new word");
+        field2.setText("Enter its translation");
+        mainBody.add(field1, BorderLayout.CENTER);
+        mainBody.add(field2, BorderLayout.CENTER);
+        
+        //Add buttons for submitting data, and completing data entry
+        mainBody.add(submit, BorderLayout.SOUTH);
+        mainBody.add(done, BorderLayout.SOUTH);
+        
+        field1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                if (e.getSource() == field1) {
+                    field1.setText("");
+                }
+            }
+        });
+        
+        field2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                if (e.getSource() == field2) {
+                    field2.setText("");
+                }
+            }
+        });
+        
+        //Action listeners for submit button
+        submit.addActionListener(new ActionListener(){
+            @Override 
+            public void actionPerformed(ActionEvent e){
+                
+                //This checks to see if the user wrote anything
+                if ((field1.getText().isEmpty()) || (field2.getText().isEmpty()) ||
+                        (field1.getText().compareTo("Enter a new word") ==  0) || 
+                        (field2.getText().compareTo("Enter its translation") == 0)){
+                    message1.setText("                         Please try again                         ");
+                }
+                //Save each a word to each list 
+                else {
+                    message1.setText("Please enter a word and its translation.");
+                    list1.add(field1.getText());
+                    //The word is saved as lowercase to eliminate case sensitivity 
+                    list2.add(field2.getText().toLowerCase());
+                    field1.setText("Enter a new word");
+                    field2.setText("Enter its translation");
+                }
+                System.out.println(list1.toString() + "\n" + list2.toString());
+            }
+        });
+        
+        //Action listener for finish button
+        done.addActionListener(new ActionListener(){
+            @Override 
+            public void actionPerformed(ActionEvent e){
+                
+                //First check to see if there is anything in the lists
+                if ((list1.isEmpty()) || (list2.isEmpty()))
+                    message1.setText("                         Please try again                         ");
+                else{
+                    mainBody.removeAll();
+                    test();
+                    mainBody.updateUI();
+                }
+            }
+        });
+        
+        add(mainBody);
+        pack();
+        
+    }
+    
+    public void test(){
+        System.out.println(list1.size());
+        
+        number = random();
+        
+        message1.setText(list1.get(number) + " is:");
+        
+        mainBody.add(message1, BorderLayout.NORTH);
+        mainBody.add(field2, BorderLayout.CENTER);
+        mainBody.add(check, BorderLayout.SOUTH);
+        mainBody.add(message2, BorderLayout.SOUTH);
+        
+        check.addActionListener(new ActionListener(){
+            @Override 
+            public void actionPerformed(ActionEvent e){
+                if (list2.get(number).compareTo(field2.getText().toLowerCase()) == 0){
+                    correct++;
+                    message2.setText("Correct   " + " Correct: " + correct + " Incorrect: " +
+                            incorrect);
+                    
+                }
+                else{
+                    incorrect++;
+                    message2.setText("False     " + " Correct: " + correct + " Incorrect: " +
+                            incorrect);
+                    
+                }
+                
+                number = random();
+                
+                message1.setText(list1.get(number) + " is:");
+                field2.setText("Enter its translation");
+                pack();
+            }
+        });
+        
+        pack();
+        add(mainBody);
+        
+    }
+    
+    public int random(){
+        int num = (int)(Math.random() * (list1.size()));
+        
+        return num;
+    }
+}
+
+
