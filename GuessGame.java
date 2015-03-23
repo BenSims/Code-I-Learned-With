@@ -1,4 +1,5 @@
 
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -21,7 +22,7 @@ public class GuessGame extends JFrame{
 	ArrayList<JButton> deck = new ArrayList<JButton>();
 	Random ranNum = new Random();
 	boolean turn = true;
-	int count = 2;
+	int count = 20;
 	
 	public static void main(String[] args){
 		new GuessGame();
@@ -37,7 +38,7 @@ public class GuessGame extends JFrame{
 		char symbol = 'A';
 		int card1, card2;
 		//for loop makes all the cards
-		for (int i = 0; i < 2; i++){
+		for (int i = 0; i < 20; i++){
 			deck.add(new JButton(" "));//the blank string is used later
 			this.add(deck.get(i));
 		}
@@ -123,6 +124,7 @@ public class GuessGame extends JFrame{
 	
 	//Method used when game is won
 	private void winner(){
+		setLayout(new FlowLayout());
 		getContentPane().removeAll(); //Removes all labels from the JFrame
 		add(new JLabel("You won!!  Would you like to paly again?"));
 
@@ -136,7 +138,7 @@ public class GuessGame extends JFrame{
 		});
 		add(deck.get(deck.size() - 1));
 		repaint();
-		setSize(200, 200);
+		pack();
 		
 		
 	}//end winner()
