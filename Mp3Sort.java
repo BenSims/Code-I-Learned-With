@@ -27,9 +27,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * Info:   This is a small program I made
  * that is used to sort mp3 files.  It takes
  * the information held at the end of an mp3
- * and uses it to sort the files.  Thank you
- * so much Tika developers.  You guys are the 
- * best!
+ * and uses it to sort the files.  Files are 
+ * sorted by alphabetically by artist, then 
+ * by album name.  
+ * Thank you so much Tika/Apache developers.  
+ * You guys are the best!
  */
 
 public class Mp3Sort {
@@ -49,7 +51,7 @@ public class Mp3Sort {
 		display.setVisible(true);
 	}//end Mp3Sort() constructor
 	
-	//method used to make ActionListener
+	//method used to make an ActionListener
 	private ActionListener makeActionListener(Display display){
 		return new ActionListener(){
 
@@ -64,7 +66,7 @@ public class Mp3Sort {
 					popUpMessage("Finished!");
 				}
 				else{
-					popUpMessage("One of the folders does not exist. Please enter again.");
+					popUpMessage("One of the folders does not exist. Please check folder paths.");
 				}
 			}
 		};
@@ -140,7 +142,11 @@ public class Mp3Sort {
 		}
 		return tempString;
 		
-	}//end getArtist()//method used to pull Artist data from mp3
+	}//end getArtist()
+	
+	//method used to pull Album data from mp3.  This is kept
+	//separate from getArtist() because I plan to expand this
+	//program and let the user choose how to sort files.
 	private String getAlbum(File mp3){
 		String tempString = "";
 	    InputStream input;
