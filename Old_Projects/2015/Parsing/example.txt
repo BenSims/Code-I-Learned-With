@@ -1,0 +1,2 @@
+Window"Calculator"(500,300)LayoutFlow:Textfield20;Panel Layout Grid(5, 5, 5, 5):Panel Layout Flow:GroupRadio "a";Radio "b";Radio "c";End;End;
+Button "7";Button "8";Button "9";Button "4";Button "5";Button "6";Button "1";Button "2";Button "3";Label "Banana";Button "0";End;GroupRadio "e";Radio "f";Radio "g";End;Label "Joe";End.
