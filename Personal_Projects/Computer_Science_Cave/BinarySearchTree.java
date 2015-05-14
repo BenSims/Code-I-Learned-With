@@ -4,18 +4,21 @@
  * This is a very basic Binary Search Tree
  */
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class BinarySearchTree<E extends Comparable<E>> {
 	protected BinaryTreeNode<E> rootNode;
+	private E[] a;
 	
 	public BinarySearchTree(){
 	}//end BinarySearchTree() Constructor
 	
 	public BinarySearchTree(E[] list){
-		makeBalancedTree(list, 0, list.length - 1);
+		makeBalancedTree(list, 0, list.length);
 	}//end BinarySearchTree() Constructor
 	
+	//Method from above source
 	public boolean insert(E e) {
 		if (rootNode == null)
 	      rootNode = new BinaryTreeNode<E>(e); // Create a new root
@@ -44,6 +47,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
 	    return true; // Element inserted
 	}//end insert()
 	
+	//Method from above source
 	public boolean delete(E e) {
 	    // Locate the node to be deleted and also locate its parent node
 	    BinaryTreeNode<E> parent = null;
@@ -102,6 +106,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
 	    return true; // Element inserted
 	}
 	
+	//Method returns a node based on given data
 	public BinaryTreeNode<E> searchTree(E e){
 		BinaryTreeNode<E> current = rootNode;
 		while (current != null){
@@ -118,40 +123,57 @@ public class BinarySearchTree<E extends Comparable<E>> {
 		return null;
 	}//end searchTree()
 	
-	//Method takes a list 0 and its size and makes a balanced tree
+	//Method takes a list, 0, and its size and makes a balanced tree. It does 
+	//this by recursively finding and inserting the middle index, and splitting
+	//each part in half.
 	public void makeBalancedTree(E[] list, int index, int index2){
-	      if (index == index2){
-	          return;
-	      }
+	    if (index == index2){
+	        return;
+	    }
 	      
-	      int midPoint = (index + index2) / 2;
-	      this.insert(list[midPoint]);
+	    int midPoint = (index + index2) / 2;
+	    this.insert(list[midPoint]);
 	      
-	      makeBalancedTree(list, index, midPoint);
-	      makeBalancedTree(list, midPoint + 1, index2);
+	    makeBalancedTree(list, index, midPoint);
+	    makeBalancedTree(list, midPoint + 1, index2);
 	 }
 	
-	//This method copies all data to an ArrayList, and deletes the node after
-	public ArrayList<E> copyToList(BinaryTreeNode<E> root, ArrayList<E> list){
-
-		list.add(root.data);
-		if (root.leftNode != null){
-			copyToList(root.leftNode, list);
-			root.leftNode = null;
-		}
-		if (root.rightNode != null){
-			copyToList(root.rightNode, list);
-			root.rightNode = null;
-		}
+	//Same method as above, but it accepts an ArrayList in place of an array
+	public void makeBalancedTree(ArrayList<E> list, int index, int index2){
+	    if (index == index2){
+	        return;
+	    }
+	      
+	    int midPoint = (index + index2) / 2;
+	    this.insert(list.get(midPoint));
+	      
+	    makeBalancedTree(list, index, midPoint);
+	    makeBalancedTree(list, midPoint + 1, index2);
+	 }
+	
+	//Method copies all nodes' data to a list
+	public ArrayList<E> copyToList(BinaryTreeNode<E> root){
+		ArrayList<E> list = new ArrayList<E>();
+		makeList(list, rootNode);
 		return list;
 	}//end balanceTree()
 	
+	//recursive method that copies elements to an ArrayList
+	private void makeList(ArrayList<E> list, BinaryTreeNode<E> node){
+		if (node == null){
+			return;
+		}
+		makeList(list, node.leftNode);
+		list.add(node.data);
+		makeList(list, node.rightNode);
+	}//end makeList()
+
+	//Method makes a balanced tree
 	public void rebalanceTree(){
-		E[] list = null;
-		list = (E[]) copyToList(rootNode, new ArrayList<E>()).toArray();
-		makeBalancedTree(list, 0, list.length - 1);
+		ArrayList<E> list = copyToList(rootNode);
+		rootNode = null;
+		makeBalancedTree(list, 0, list.size());
 	}//end rebalanceTree()
-	
 }//end class BinarySearchTree
 
 class BinaryTreeNode<E>{
