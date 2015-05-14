@@ -8,6 +8,7 @@ Old_Projects are projects I made to learn core concepts.  These concepts are OOP
 Data Structures, Algorithms, and Advance Programming languages. 
 Personal_Projects are ones that I did aside from class.  They are various games,
 and tools that I use to in various ways.
+
 I was told not long ago that my programming looks more practical based, than
 theoretical based.  I did not like that commit.  I didn’t make A’s in all my classes
 for nothing.  But looking back at my code, yes I don’t often apply what I learned
