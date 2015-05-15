@@ -9,7 +9,7 @@ Data Structures, Algorithms, and Advance Programming languages.
 Personal_Projects are ones that I did aside from class.  They are various games,
 and tools that I use to in various ways.
 
-For the old projects Java 7 and in 2015 Java 8.  For all the personal projects Java 8 is
+For the old projects Java 7 is required and in 2015 Java 8.  For all the personal projects Java 8 is
 required, and for the tests JUnit. 
 
 I was told not long ago that my programming looks more practical based, than
