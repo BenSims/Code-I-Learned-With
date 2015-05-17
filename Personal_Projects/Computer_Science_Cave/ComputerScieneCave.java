@@ -1,3 +1,12 @@
+/* Author: Ben Sims
+ * Date: 10 May 15
+ * A small project to demonstrate my understanding of computer science.
+ * This program takes an input .txt file that has to be formatted in a special
+ * way, and builds objects based on that.  There is one abstract class, and
+ * several classes that extend it. Concurrent programming is later used with
+ * the jobs, and a JTree is used to display data.  More fetures are to come.
+ */
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,8 +15,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -18,6 +30,7 @@ import javax.swing.JTree;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 public class ComputerScieneCave{
@@ -26,7 +39,9 @@ public class ComputerScieneCave{
 		new ComputerScieneCave();
 	}//end main()
 
-	public ComputerScieneCave(){
+	//Start by finding a file path, then making a cave based on that file, then
+	//use that cave to make the display 
+	public void ComputerSciencCave(){
 		String filePath = "";
 		Cave mainCave = null;
 
@@ -137,6 +152,67 @@ public class ComputerScieneCave{
 		tempCave.addGameElement(j.getIndex(), j);
 		tempCave.addJob(j);
 	}//end makeJob()
+	
+	private JTree makeJTree(Cave cave){
+		DefaultMutableTreeNode caveRoot = new DefaultMutableTreeNode("Main Cave");
+		DefaultTreeModel treeModel = new DefaultTreeModel(caveRoot);
+		JTree tree = new JTree(treeModel);
+		boolean newItem = true;
+		
+		tree.setEditable(true);
+		tree.getSelectionModel().setSelectionMode
+		        (TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.setShowsRootHandles(true);
+		
+		for (Party p : cave.getAllParties()){
+			treeModel.insertNodeInto(new DefaultMutableTreeNode(p.getName(), caveRoot, caveRoot.getChildCount()));
+			for (Creature c : p.members){
+				newItem = true;
+				treeModel.insertNodeInto(new DefaultMutableTreeNode(c), 
+						(MutableTreeNode) caveRoot.getLastChild(), caveRoot.getLastChild().getChildCount());
+				for (Treasure t : c.){
+					if (newItem == true){
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(t), caveRoot.getLastLeaf(), 0);
+						newItem = false;
+					}
+					else{
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(t), 
+								(MutableTreeNode) caveRoot.getLastLeaf().getParent(), 
+								caveRoot.getLastLeaf().getParent().getChildCount());
+					}
+				}
+				for (Artifact a : c.getAllArtifacts()){
+					if (newItem == true){
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(a), caveRoot.getLastLeaf(), 0);
+						newItem = false;
+					}
+					else{
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(a), 
+								(MutableTreeNode) caveRoot.getLastLeaf().getParent(), 
+								caveRoot.getLastLeaf().getParent().getChildCount());
+					}
+				}
+				
+				for (Job j : c.getAllJobs()){
+					if (newItem == true){
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(j), caveRoot.getLastLeaf(), 0);
+						newItem = false;
+					}
+					else{
+						treeModel.insertNodeInto(new DefaultMutableTreeNode(j.toString()), 
+								(MutableTreeNode) caveRoot.getLastLeaf().getParent(), 
+								caveRoot.getLastLeaf().getParent().getChildCount());
+					}
+				}
+			}
+		}
+		
+		for (GameElement e : cave.unpartiedElements.values()){
+			treeModel.insertNodeInto(new DefaultMutableTreeNode("Unpartied " + e), caveRoot, caveRoot.getChildCount());
+		}
+		
+		return tree;
+	}
 }//end class SorerersCave
 
 abstract class GameElement{
@@ -182,12 +258,11 @@ abstract class GameElement{
 		
 		return tempString;
 	}//end getObjectType
-	
 }//end class GameElement
 
 class Cave extends GameElement{
-	private HashMap<Integer, GameElement> allGameElements = new HashMap<Integer, GameElement>();
-	private HashMap<Integer, GameElement> unpartiedElements = new HashMap<Integer, GameElement>();
+	protected HashMap<Integer, GameElement> allGameElements = new HashMap<Integer, GameElement>();
+	protected HashMap<Integer, GameElement> unpartiedElements = new HashMap<Integer, GameElement>();
 	private HashMap<Integer, Job> jobs = new HashMap<Integer, Job>();
 	
 	public Cave(){}
@@ -236,13 +311,16 @@ class Cave extends GameElement{
 		return (Artifact)allGameElements.get(index);
 	}//end getTreasure()
 	
-	public HashMap<Integer, GameElement> getAllGameElement(){
-		return allGameElements;
-	}//end getGameElelment()
-	
 	public GameElement getUnpartiedGameElement(int index){
 		return unpartiedElements.get(index);
 	}//end getUnpartiedGameElement()
+	
+	public ArrayList<Party> getAllParties(){
+		ArrayList<Party> list = new ArrayList<Party>();
+		allGameElements.values().stream().filter(p -> p.getIndex() / 10000 == 1)
+			.forEach(p -> list.add((Party)p));
+		return list;
+	}//end getAllParties()
 	
 	public Job getJob(int index){
 		return jobs.get(index);
@@ -263,7 +341,7 @@ class Cave extends GameElement{
 }//end class Cave
 
 class Party extends GameElement{
-	private HashMap<Integer, Creature> members = new HashMap<Integer, Creature>();
+	protected HashMap<Integer, Creature> members = new HashMap<Integer, Creature>();
 	private ArrayList<Artifact> resourcePool = new ArrayList<Artifact>();
 	
 	public Party(Scanner input){

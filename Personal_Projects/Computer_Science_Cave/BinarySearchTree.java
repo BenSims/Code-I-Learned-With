@@ -4,7 +4,6 @@
  * This is a very basic Binary Search Tree
  */
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class BinarySearchTree<E extends Comparable<E>> {
