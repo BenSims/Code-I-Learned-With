@@ -10,6 +10,8 @@
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -233,7 +235,17 @@ public class ComputerScienceCave{
 		searchPanel.add(searchField);
 		searchPanel.add(searchButton);
 		
-		searchButton.addActionListener(e -> search(searchField.getText(), dataTArea));
+		searchField.setText("Enter index, or name here");
+		searchField.addActionListener(e -> search(searchField.getText(), dataTArea, cave));
+		searchField.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e){
+				if (e.getSource().equals(searchField)){
+					searchField.setText("");
+				}
+			}
+		});
+		
+		searchButton.addActionListener(e -> search(searchField.getText(), dataTArea, cave));
 		
 		mainFrame.add(searchPanel, BorderLayout.NORTH);
 		mainFrame.add(treeScroller, BorderLayout.CENTER);
@@ -247,9 +259,97 @@ public class ComputerScienceCave{
 	}//end displayData()
 	
 	//Method uses parsing concepts for user-friendly interface
-	private void search(String target, JTextArea dataTArea){
-		//TODO parse input produce output, maybe accept Cave object
+	private void search(String target, JTextArea dataTArea, Cave cave){
+		String data = "";
+		if (isNumber(target)){
+			int index = Integer.parseInt(target);
+			if (isIndex(index)){
+				try{
+					switch (index / 10000){
+					case 1: data = partyInfo(cave.getParty(index)); break;
+					case 2: data = creatureInfo(cave.getCreature(index)); break;
+					case 3: data = treasureInfo(cave.getTreasure(index)); break;
+					case 4: data = artifactInfo(cave.getArtifact(index)); break;
+					case 5: data = jobInfo(cave.getJob(index)); break;
+					}
+				}
+				catch (NullPointerException e){
+				}
+			}
+		}
+		if (data.isEmpty()){
+			for (GameElement e: cave.allGameElements.values()){
+				if (e.getName().compareToIgnoreCase(target) == 0 || 
+						e.getType().compareToIgnoreCase(target) == 0){
+					switch (e.getIndex() / 10000){
+					case 1: data = partyInfo(cave.getParty(e.getIndex())); break;
+					case 2: data = creatureInfo(cave.getCreature(e.getIndex())); break;
+					case 3: data = treasureInfo(cave.getTreasure(e.getIndex())); break;
+					case 4: data = artifactInfo(cave.getArtifact(e.getIndex())); break;
+					case 5: data = jobInfo(cave.getJob(e.getIndex())); break;
+					}
+				}
+			}
+		}
+		data += "\n\n";
+		dataTArea.append(data);
 	}//end search()
+	
+	private boolean isNumber(String index){
+		try{
+			Integer.parseInt(index);
+		}
+		catch(NumberFormatException e){
+			return false;
+		}
+		return true;
+	}//end isNumber()
+	
+	private boolean isIndex(int index){
+		int value = index / 10000;
+		if (0 < value && value < 6){
+			return true;
+		}
+		return false;
+	}//end isIndex()
+	
+	private String partyInfo(Party party){
+		String data = "Party: " + party.getName() + "\n" + "Members: ";
+		for (Creature c: party.members.values()){
+			data += c.getName() + ", ";
+		}
+		
+		return data;
+	}//end partyInfo()
+	
+	private String creatureInfo(Creature c){
+		String data = "Creature: " + c.getName() + "\nStats:\n" + c.stats();
+		data += "\nItems\n";
+		for (Treasure t: c.treasures.values()){
+			data += t.toString() + ", ";
+		}
+		for (Artifact a: c.artifacts.values()){
+			data += a.toString() + ", ";
+		}
+		return data;
+	}//end creatureInfo()
+	
+	private String treasureInfo(Treasure t){
+		String data = "Treasure: " + t.getType() + "\nStats\n";
+		data += "Value: " + t.getValue() + " Weight: " + t.getWeight();
+		return data;
+	}//end treasureInfo()
+	
+	private String artifactInfo(Artifact a){
+		String data = "Artifact: " + a.getType() + " \"" + a.getName() + "\" ";
+		return data;
+	}//end artifactInfo()
+	
+	private String jobInfo(Job j){
+		String data = "Job: " + j.getName() + " Time Needed: " + j.getTime();
+		data += "\n" + j.resourcesNeeded();
+		return data;
+	}//end jobInfo()
 }//end class SorerersCave
 
 abstract class GameElement{
@@ -385,6 +485,7 @@ class Party extends GameElement{
 		input.next();
 		super.setIndex(input.nextInt());
 		super.setName(input.next());
+		super.setType(""); // needed to balance search()
 	}
 	
 	public void addMember(int index, Creature c){
@@ -461,10 +562,10 @@ class Creature extends GameElement{
 	}//end getJob
 	
 	public String stats(){ 
-		String tempString = "-" + super.getType() + "-" +  " Empathy: "
-				+ empathy + " Fear: " + fear + " \nCarrying Capacity" 
-				+ carryingCapacity + " Age: " + age + " \nHeight: " 
-				+ height + " Weight: " + weight;
+		String tempString = "Type: " + super.getType() + ", Empathy: "
+				+ empathy + ", Fear: " + fear + ", Carrying Capacity: " 
+				+ carryingCapacity + ", Age: " + age + ", Height: " 
+				+ height + ", Weight: " + weight;
 		return tempString;
 	}
 	
@@ -473,23 +574,6 @@ class Creature extends GameElement{
 		return tempString;
 	}//end toSting()
 }//end class Creature
-
-class Artifact extends GameElement{
-	
-	public Artifact(Scanner input){
-		input.next();
-		super.setIndex(input.nextInt());
-		super.setType(input.next());
-		super.setOwner(input.nextInt());
-		super.setName(input.next());
-	}//end Artifact constructor
-	
-	public String toString(){
-		String tempString = "A " + this.getName() + " A";
-		
-		return tempString;
-	}//end toSting()
-}//end class Artifact
 
 class Treasure extends GameElement{
 	private int weight, value;
@@ -501,6 +585,7 @@ class Treasure extends GameElement{
 		super.setOwner(input.nextInt());
 		this.weight = input.nextInt();
 		this.value = input.nextInt();
+		super.setName(""); // needed to balance search()
 	}//end constructor Treasure()
 	
 	public void setValue(int value){
@@ -521,6 +606,23 @@ class Treasure extends GameElement{
 		return tempString;
 	}//end toString()
 }//end class Treasure
+
+class Artifact extends GameElement{
+	
+	public Artifact(Scanner input){
+		input.next();
+		super.setIndex(input.nextInt());
+		super.setType(input.next());
+		super.setOwner(input.nextInt());
+		super.setName(input.next());
+	}//end Artifact constructor
+	
+	public String toString(){
+		String tempString = "A " + this.getName() + " A";
+		
+		return tempString;
+	}//end toSting()
+}//end class Artifact
 
 class Job extends GameElement implements Runnable{
 	
@@ -545,6 +647,7 @@ class Job extends GameElement implements Runnable{
 		this.wand = input.nextInt();
 		input.next();
 		this.weapon = input.nextInt();
+		super.setType("Job"); // needed to balance search()
 	}
 	//Setter Methods
 	public void setLocationY(int y){
@@ -592,7 +695,7 @@ class Job extends GameElement implements Runnable{
 	
 	//ResourcesNeeded display
 	public String resourcesNeeded(){
-		String tempString = "Resources Required: ";
+		String tempString = "Resources Required: \n";
 		tempString += "Wand(s): " + this.getWand() + ", Potion(s): " + 
 				this.getPotion() + ", Stone(s): " + this.getStone() + 
 				", Weapon(s): " + this.getWeapon();
