@@ -258,7 +258,8 @@ public class ComputerScienceCave{
 		mainFrame.setVisible(true);
 	}//end displayData()
 	
-	//Method uses parsing concepts for user-friendly interface
+	//Method uses parsing concepts for user-friendly interface. First input
+	//is checked if it is an index number, after it is check by name an type.
 	private void search(String target, JTextArea dataTArea, Cave cave){
 		String data = "";
 		if (isNumber(target)){
@@ -290,6 +291,10 @@ public class ComputerScienceCave{
 					}
 				}
 			}
+		}
+		//if nothing could be found this is stated.
+		if (data.isEmpty()){
+			data = target.trim() + " could not be found.";
 		}
 		data += "\n\n";
 		dataTArea.append(data);
